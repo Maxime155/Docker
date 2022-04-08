@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+  # Service pour la bdd
+  postgresql:
+    image: postgres:latest
+    container_name: postgresql
+    restart: unless-stopped
+    networks:
+      - SRC4Groupe3
+    volumes:
+      - postgresqldata:/var/lib/postgresql
+    environment:
+      - POSTGRES_DB=postgresql
+      - POSTGRES_USER=toto
+      - POSTGRES_PASSWORD=toto
+
+  # Service pour l'application  
+  Node:
+    image: shortit
+    container_name: Node
+    links:
+      - postgresql
+    restart: unless-stopped
+    networks:
+      - SRC4Groupe3
+    ports:
+      - "80:3000"
+    volumes:
+      - nodedata:/shortit
+    environment:
+      - SITE_NAME=DockerProjet
+      - DEFAULT_DOMAIN=192.168.1.128
+      - DB_USER=toto
+      - DB_PASSWORD=toto
+      - DB_HOST=postgresql
+      - JWT_SECRET=XCKSjhq0390ItJHkP5ns
+      - MAIL_HOST=smtp.ionos.fr
+      - MAIL_PORT=587
+      - MAIL_USER=noreply@ecolia.ch
+      - MAIL_PASSWORD=UVYPhVJL3F8aavUo
+      - REDIS_HOST=Redis
+      - ADMIN_EMAILS=mbadra@myges.fr,sgaman@myges.fr,mmeuley@myges.fr
+    depends_on:
+      - postgresql
+
+  # Service pour gérer le cache 
+  Redis:
+    image: redis
+    container_name: Redis
+    networks:
+      - SRC4Groupe3
+    volumes:
+      - redisdata:/var/lib/redis
+    restart: unless-stopped
+
+volumes:
+  nodedata:
+  postgresqldata:
+  redisdata:
+
+networks:
+  SRC4Groupe3:
